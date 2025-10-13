@@ -53,6 +53,8 @@ class AplicacionConPestanas(ctk.CTk):
             self.actualizar_treeview()
         if selected_tab == "Pedido":
             self.actualizar_treeview()
+            self.generar_menus()  # Generar tarjetas de menús
+            self.actualizar_treeview_pedido()  # Actualizar lista del pedido
             print('pedido')
         if selected_tab == "Carta restorante":
             self.actualizar_treeview()
@@ -199,7 +201,31 @@ class AplicacionConPestanas(ctk.CTk):
         
 
     def mostrar_boleta(self):
-        pass
+        if not self.pedido.menus:
+            CTkMessagebox(title="Error", message="No hay items en el pedido para mostrar la boleta.", icon="warning")
+            return
+        
+        try:
+            # Generar la boleta
+            boleta_facade = BoletaFacade(self.pedido)
+            pdf_path = boleta_facade.crear_pdf()
+            
+            # Limpiar visor anterior si existe
+            if self.pdf_viewer_boleta is not None:
+                try:
+                    self.pdf_viewer_boleta.pack_forget()
+                    self.pdf_viewer_boleta.destroy()
+                except Exception:
+                    pass
+                self.pdf_viewer_boleta = None
+            
+            # Mostrar el PDF en el visor
+            abs_pdf = os.path.abspath(pdf_path)
+            self.pdf_viewer_boleta = CTkPDFViewer(self.pdf_frame_boleta, file=abs_pdf)
+            self.pdf_viewer_boleta.pack(expand=True, fill="both")
+            
+        except Exception as e:
+            CTkMessagebox(title="Error", message=f"Error al mostrar la boleta: {e}", icon="warning")
 
     def configurar_pestana1(self):
         # Dividir la Pestaña 1 en dos frames
@@ -275,13 +301,48 @@ class AplicacionConPestanas(ctk.CTk):
 
     
     def generar_menus(self):
-        pass
+        # Limpiar tarjetas existentes
+        for widget in tarjetas_frame.winfo_children():
+            widget.destroy()
+        self.menus_creados.clear()
+        
+        # Crear tarjetas para cada menú disponible
+        for menu in self.menus:
+            if menu.nombre not in self.menus_creados:
+                self.crear_tarjeta(menu)
+                self.menus_creados.add(menu.nombre)
 
     def eliminar_menu(self):
-        pass
+        seleccion = self.treeview_menu.selection()
+        if not seleccion:
+            CTkMessagebox(title="Error", message="Selecciona un menú del pedido para eliminar.", icon="warning")
+            return
+        
+        # Obtener el nombre del menú seleccionado
+        item = self.treeview_menu.item(seleccion[0])
+        nombre_menu = item['values'][0]  # Primera columna es el nombre
+        
+        # Eliminar del pedido
+        self.pedido.eliminar_menu(nombre_menu)
+        
+        # Actualizar vista y total
+        self.actualizar_treeview_pedido()
+        total = self.pedido.calcular_total()
+        self.label_total.configure(text=f"Total: ${total:.2f}")
+        
+        CTkMessagebox(title="Éxito", message=f"Menú '{nombre_menu}' eliminado del pedido.", icon="check")
 
     def generar_boleta(self):
-        pass
+        if not self.pedido.menus:
+            CTkMessagebox(title="Error", message="No hay items en el pedido para generar la boleta.", icon="warning")
+            return
+        
+        try:
+            boleta_facade = BoletaFacade(self.pedido)
+            mensaje = boleta_facade.generar_boleta()
+            CTkMessagebox(title="Éxito", message=mensaje, icon="check")
+        except Exception as e:
+            CTkMessagebox(title="Error", message=f"Error al generar la boleta: {e}", icon="warning")
 
     def configurar_pestana2(self):
         frame_superior = ctk.CTkFrame(self.tab2)
@@ -369,14 +430,65 @@ class AplicacionConPestanas(ctk.CTk):
             return False
 
     def ingresar_ingrediente(self):
-        pass
+        nombre = self.entry_nombre.get().strip()
+        unidad = self.combo_unidad.get()
+        cantidad_str = self.entry_cantidad.get().strip()
+        
+        if not nombre:
+            CTkMessagebox(title="Error", message="El nombre del ingrediente no puede estar vacío.", icon="warning")
+            return
+            
+        if not self.validar_nombre(nombre):
+            return
+            
+        if not cantidad_str:
+            CTkMessagebox(title="Error", message="La cantidad no puede estar vacía.", icon="warning")
+            return
+            
+        try:
+            cantidad = float(cantidad_str)
+            if cantidad <= 0:
+                CTkMessagebox(title="Error", message="La cantidad debe ser mayor a 0.", icon="warning")
+                return
+        except ValueError:
+            CTkMessagebox(title="Error", message="La cantidad debe ser un número válido.", icon="warning")
+            return
+        
+        ingrediente = Ingrediente(nombre, unidad, cantidad)
+        self.stock.agregar_ingrediente(ingrediente)
+        
+        # Limpiar campos
+        self.entry_nombre.delete(0, 'end')
+        self.entry_cantidad.delete(0, 'end')
+        
+        # Actualizar vista
+        self.actualizar_treeview()
+        
+        CTkMessagebox(title="Éxito", message=f"Ingrediente '{nombre}' agregado al stock.", icon="check")
 
     def eliminar_ingrediente(self):
-        pass
-
-    def actualizar_treeview(self):
-        pass
-
+        seleccion = self.tree.selection()
+        if not seleccion:
+            CTkMessagebox(title="Error", message="Selecciona un ingrediente para eliminar.", icon="warning")
+            return
+        
+        # Obtener el nombre del ingrediente seleccionado
+        item = self.tree.item(seleccion[0])
+        nombre_ingrediente = item['values'][0]  # Primera columna es el nombre
+        
+        # Confirmar eliminación
+        respuesta = CTkMessagebox(
+            title="Confirmar", 
+            message=f"¿Estás seguro de que quieres eliminar '{nombre_ingrediente}'?", 
+            icon="question",
+            option_1="Sí",
+            option_2="No"
+        )
+        
+        if respuesta.get() == "Sí":
+            self.stock.eliminar_ingrediente(nombre_ingrediente)
+            self.actualizar_treeview()
+            CTkMessagebox(title="Éxito", message=f"Ingrediente '{nombre_ingrediente}' eliminado.", icon="check")
 
 if __name__ == "__main__":
     import customtkinter as ctk
