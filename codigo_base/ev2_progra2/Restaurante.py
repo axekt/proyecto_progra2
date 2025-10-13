@@ -53,8 +53,8 @@ class AplicacionConPestanas(ctk.CTk):
             self.actualizar_treeview()
         if selected_tab == "Pedido":
             self.actualizar_treeview()
-            self.generar_menus()  # Generar tarjetas de menús
-            self.actualizar_treeview_pedido()  # Actualizar lista del pedido
+            self.generar_menus()  # Generar tarjetas de menús, fue modificado por mi :b
+            self.actualizar_treeview_pedido()  # Actualizar lista del pedido fue modificado por mi :b
             print('pedido')
         if selected_tab == "Carta restorante":
             self.actualizar_treeview()
@@ -122,7 +122,10 @@ class AplicacionConPestanas(ctk.CTk):
             self.boton_agregar_stock.configure(command=self.agregar_csv_al_stock)
         except Exception as e:
             CTkMessagebox(title="Error", message=f"No se pudo cargar el archivo CSV.\n{e}", icon="warning")
-        
+    # esta funcion abre un cuadro de dialogo para seleccionar un archivo csv, funciona de la siguiente forma:
+    # se utiliza filedialog.askopenfilename para abrir el cuadro de dialogo y seleccionar el archivo, posteriormente
+    # se carga el archivo csv en un dataframe de pandas y se muestra en una tabla dentro de la aplicacion
+
     def mostrar_dataframe_en_tabla(self, df):
         if self.tabla_csv:
             self.tabla_csv.destroy()
