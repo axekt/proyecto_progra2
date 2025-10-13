@@ -107,7 +107,19 @@ class AplicacionConPestanas(ctk.CTk):
         self.actualizar_treeview()   
 
     def cargar_csv(self):
-        pass
+        file_path = filedialog.askopenfilename(
+            title="seleccionar archivo csv",
+            filetypes=[("archivos CSV", "*.csv"), ("Todos los archivos", "*.*")]
+        )
+        if not file_path:
+            return
+        try:
+            df = pd.read_csv(file_path)
+            self.df_csv = df
+            self.mostrar_dataframe_en_tabla(df)
+            self.boton_agregar_stock.configure(command=self.agregar_csv_al_stock)
+        except Exception as e:
+            CTkMessagebox(title="Error", message=f"No se pudo cargar el archivo CSV.\n{e}", icon="warning")
         
     def mostrar_dataframe_en_tabla(self, df):
         if self.tabla_csv:
@@ -382,5 +394,6 @@ if __name__ == "__main__":
         style.theme_use("clam")
     except Exception:
         pass
+
 
     app.mainloop()
