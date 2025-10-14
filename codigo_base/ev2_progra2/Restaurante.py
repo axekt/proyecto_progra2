@@ -53,7 +53,6 @@ class AplicacionConPestanas(ctk.CTk):
             self.actualizar_treeview()
         if selected_tab == "Pedido":
             self.actualizar_treeview()
-            self.generar_menus()  # Generar tarjetas de menús, fue modificado por mi :b
             self.actualizar_treeview_pedido()  # Actualizar lista del pedido fue modificado por mi :b
             print('pedido')
         if selected_tab == "Carta restorante":
@@ -352,12 +351,24 @@ class AplicacionConPestanas(ctk.CTk):
         for widget in self.tarjetas_frame.winfo_children():
             widget.destroy()
         self.menus_creados.clear()
-        
-        # Crear tarjetas para cada menú disponible
+
+        # Mostrar solo menús que se pueden preparar con el stock actual
+        disponibles = 0
         for menu in self.menus:
-            if menu.nombre not in self.menus_creados:
+            if menu.nombre in self.menus_creados:
+                continue
+            if self._hay_stock_para_menu(menu, cantidad_menu=1):
                 self.crear_tarjeta(menu)
                 self.menus_creados.add(menu.nombre)
+                disponibles += 1
+
+        # Si no hay menús disponibles, mostrar un mensaje informativo en la pestaña
+        if disponibles == 0:
+            ctk.CTkLabel(
+                self.tarjetas_frame,
+                text="No hay menús disponibles por falta de stock.",
+                text_color="gray"
+            ).pack(pady=20)
 
     def eliminar_menu(self):
         seleccion = self.treeview_menu.selection()
