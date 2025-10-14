@@ -228,6 +228,7 @@ class AplicacionConPestanas(ctk.CTk):
         try:
             # Generar la boleta
             boleta_facade = BoletaFacade(self.pedido)
+            boleta_facade.generar_detalle_boleta()
             pdf_path = boleta_facade.crear_pdf()
             
             # Limpiar visor anterior si existe

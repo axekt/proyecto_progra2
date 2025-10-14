@@ -49,10 +49,10 @@ def get_default_menus() -> List[IMenu]:
         CrearMenu(
             "Coca Cola",
             [
-                Ingrediente("Coca Cola", "unid", 1),
+                Ingrediente("Coca cola", "unid", 1),
             ],
             precio=1000,
-            icono_path="IMG/icono_cola_64x64.png",
+            icono_path="IMG/icono_cola_lata_64x64.png",
         ),
         CrearMenu(
             "Pepsi",
@@ -60,7 +60,7 @@ def get_default_menus() -> List[IMenu]:
                 Ingrediente("Pepsi", "unid", 1),
             ],
             precio=1000,
-            icono_path="IMG/icono_cola_lata_64x64.png",  
+            icono_path="IMG/icono_cola_64x64.png",  
         ),
         CrearMenu(
             "Chorrillana",
