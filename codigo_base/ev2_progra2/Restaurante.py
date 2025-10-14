@@ -567,7 +567,7 @@ class AplicacionConPestanas(ctk.CTk):
             return
             
         try:
-            cantidad = float(cantidad_str)
+            cantidad = int(cantidad_str)
             if cantidad <= 0:
                 CTkMessagebox(title="Error", message="La cantidad debe ser mayor a 0.", icon="warning")
                 return
