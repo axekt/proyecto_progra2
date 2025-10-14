@@ -17,7 +17,7 @@ class CrearMenu(IMenu):
             ok = False
             for ing in stock.lista_ingredientes:
                 if ing.nombre == req.nombre and (req.unidad is None or ing.unidad == req.unidad):
-                    if int(ing.cantidad) >= int(req.cantidad):
+                    if float(ing.cantidad) >= float(req.cantidad):
                         ok = True
                         break
             if not ok:
