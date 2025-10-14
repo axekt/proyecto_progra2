@@ -2,7 +2,34 @@
 
 import customtkinter
 from PIL import Image
-import fitz
+"""
+Importación robusta de PyMuPDF sin dependencias de import estático.
+Se usa importlib para:
+- Preferir `pymupdf` (nombre moderno)
+- Intentar `fitz` (alias histórico) y validar que realmente sea PyMuPDF
+- Evitar warnings de Pylance por import no resuelto
+"""
+import importlib.util
+import importlib
+
+_FITZ_OK = False
+fitz = None  # será el módulo de PyMuPDF si está disponible
+
+_spec = importlib.util.find_spec("pymupdf")
+if _spec is None:
+    _spec = importlib.util.find_spec("fitz")
+
+if _spec is not None:
+    try:
+        _mod = importlib.import_module(_spec.name)
+        # Si viene bajo nombre 'fitz', validar que sea PyMuPDF real
+        if _spec.name == "fitz" and not hasattr(_mod, "open"):
+            raise ImportError("El paquete 'fitz' instalado no es PyMuPDF.")
+        fitz = _mod
+        _FITZ_OK = True
+    except Exception:
+        fitz = None
+        _FITZ_OK = False
 from threading import Thread
 import math
 import io
@@ -44,6 +71,16 @@ class CTkPDFViewer(customtkinter.CTkScrollableFrame):
     def add_pages(self):
         """ add images and labels """
         self.percentage_bar = 0
+        if not _FITZ_OK or fitz is None:
+            # Mostrar mensaje claro en el visor en vez de romper la app
+            self.loading_bar.pack_forget()
+            self.percentage_load.set(
+                "PyMuPDF no está disponible.\n"
+                "Instala el paquete correcto: pip install PyMuPDF\n"
+                "Si tienes instalado 'fitz' (paquete incorrecto), desinstálalo: pip uninstall fitz"
+            )
+            return
+
         open_pdf = fitz.open(self.file)
         
         for page in open_pdf:
