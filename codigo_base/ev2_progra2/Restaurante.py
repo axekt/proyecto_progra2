@@ -324,9 +324,26 @@ class AplicacionConPestanas(ctk.CTk):
         self.label_total.configure(text=f"Total: ${total:.2f}")
     
     def cargar_icono_menu(self, ruta_icono):
-        imagen = Image.open(ruta_icono)
-        icono_menu = ctk.CTkImage(imagen, size=(64, 64))
-        return icono_menu
+        """Carga un icono de menú desde una ruta relativa o absoluta.
+
+        - Si la ruta es relativa, se resuelve respecto a la carpeta del módulo (ev2_progra2).
+        - Lanza una excepción si el archivo no existe o no puede abrirse.
+        """
+        # Resolver rutas relativas con base en este archivo (no en el cwd)
+        try:
+            if not os.path.isabs(ruta_icono):
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                ruta_icono = os.path.join(base_dir, ruta_icono)
+
+            if not os.path.exists(ruta_icono):
+                raise FileNotFoundError(f"Icono no encontrado en: {ruta_icono}")
+
+            imagen = Image.open(ruta_icono)
+            icono_menu = ctk.CTkImage(imagen, size=(64, 64))
+            return icono_menu
+        except Exception as e:
+            # Re-lanzar para que el llamador gestione/loguee el error
+            raise
 
     
     def generar_menus(self):
