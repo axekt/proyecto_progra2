@@ -1,18 +1,18 @@
 ﻿nombre,unidad,cantidad
 Pan de completo,unid,10
 Pan de hamburguesa,unid,45
-Carne,kg,12
+Carne,unid,80
 Lamina de queso,unid,8
-Vienesa,unid,25
-Papas,kg,15
+Vienesa,unid,37
+Papas,unid,150
 Churrasco de carne,unid,11
 Coca cola,unid,18
-Tomate,kg,7
-Cebolla,kg,5
-Queso,kg,9
+Tomate,unid,70
+Cebolla,unid,50
+Queso,unid,360
 Huevos,unid,6
-Vienesa,unid,12
-Palta,kg,100
+Palta,unid,400
 Pepsi,unid,100
-Carne de vacuno,kg,10
+Carne de vacuno,unid,67
 Masa de empanada,unid,40
+Aceite,unid,50
