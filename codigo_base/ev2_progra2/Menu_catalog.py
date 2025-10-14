@@ -68,7 +68,7 @@ def get_default_menus() -> List[IMenu]:
                 Ingrediente("Papas", "unid", 3),
                 Ingrediente("Carne", "unid", 1),
                 Ingrediente("Cebolla", "unid", 1),
-                Ingrediente("Huevo", "unid", 1),
+                Ingrediente("Huevos", "unid", 1),
             ],
             precio=6500,
             icono_path="IMG/icono_chorrillana_64x64.png",
