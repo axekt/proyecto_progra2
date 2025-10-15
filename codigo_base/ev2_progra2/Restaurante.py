@@ -288,7 +288,7 @@ class AplicacionConPestanas(ctk.CTk):
 
         self.boton_generar_menu = ctk.CTkButton(frame_treeview, text="Generar Menú", command=self.generar_menus)
         self.boton_generar_menu.pack(pady=10)
-    def tarjeta_click(self, event, menu):
+    def tarjeta_click(self, menu):
         # Verifica stock suficiente para el menú (1 unidad)
         if not self._hay_stock_para_menu(menu, cantidad_menu=1):
             CTkMessagebox(title="Stock Insuficiente", message=f"No hay suficientes ingredientes para preparar el menú '{menu.nombre}'.", icon="warning")
