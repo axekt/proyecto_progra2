@@ -1,0 +1,136 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{minted} % Para mostrar código con colores
+\usemintedstyle{monokai} % Estilo de colores 
+\usepackage{xcolor}%para poder usar el \textcolor
+
+
+\title{ProyectoP2}
+\author{Axel Gonzales, Juan Carrera Y Cristian Muñoz}
+\date{\today}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Universidad_Catolica_de_Temuco_Logo_Vertical-1024x341.png}
+
+    \label{fig:placeholder}
+\end{figure}
+\begin{document}
+
+\maketitle
+\section{Introducción}
+En el siguiente informe se enseñara como realizamos una aplicación de escritorio completa con interfaz gráfica utilizando la librería CustomTkinter.
+\subsection{Problemática}
+En muchos negocios gastronómicos pequeños, la administración de ingredientes y pedidos se realiza de forma manual, lo que genera errores frecuentes en el control del stock, retrasos en los pedidos y dificultades para mantener registros actualizados.
+Esta falta de organización provoca pérdidas económicas y disminuye la eficiencia del servicio.
+Ante esta situación, surge la necesidad de desarrollar una aplicación que automatice la gestión de ingredientes y pedidos, permitiendo un control más preciso, rápido y accesible de la información.
+\subsection{Diagrama de clases}
+\vspace{-0,5cm} % Sube la imagen 1 cm
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{lol.jpeg}
+    \label{fig:placeholder}
+\end{figure}
+\section{Propósito general del código}
+El código crea una aplicación con una interfaz gráfica lo que nos permite esta aplicación es:\\
+\textcolor{red}{Importar ingredientes desde un archivo csv}\\
+\textcolor{blue}{Cargar y gestionar ingredientes en un stok}\\
+\textcolor{green}{Crear y mostrar menús disponibles}\\
+\textcolor{purple}{Realizar pedidos seleccionando menús, controlando el stock.}\\
+\textcolor{red}{Generar y visualizar PDF con la carta y la boleta.}\\
+
+En pocas palabras es una aplicación pensada para gestionar un restaurante.
+\section{Estructura General}
+El código esta organizado por una clase principal:\\
+\begin{minted}[fontsize=\large, bgcolor=black!5]{python}
+class AplicacionConPestanas(ctk.CTk):
+\end{minted}
+Esta clase controla toda la lógica de la aplicación: interfaz, carga de datos, validaciones y acciones.
+Dentro de la clase se definen muchos métodos que separan las funciones por secciones.
+\section{Interfaz Gráfica}
+en el método \_\_init\_\_ es donde se genera la ventana principal\\
+self.title\textcolor{green}{("Gestión de ingredientes y pedidos")}\\
+self.geometry\textcolor{green}{("870x700")}\\
+
+y las pestañas se crean con:\\
+self.tabview = ctk.CTkTabview(self, command=self.on_tab_change)\\
+
+Esto permite una interfaz con varias secciones independientes:\\
+Carga de ingredientes (CSV)\\
+Stock\\
+Carta del restaurante\\
+Pedido\\
+Boleta\\
+Cada pestaña se configura con un método propio (configurar\_pestana1, configurar\_pestana2, etc.).
+
+\section{Cargar archivo CSV}
+En la pestaña “Carga de ingredientes”, se puede importar un archivo CSV con columnas nombre, unidad y cantidad.
+\begin{minted}[fontsize=\large, bgcolor=black!5]{python}
+def cargar_csv(self):
+\end{minted}
+Usa filedialog.askopenfilename para abrir un cuadro de diálogo y seleccionar el archivo.
+Luego lo lee con Pandas:\\
+df = pd.read_csv(file_path)\\
+
+y muestra visualmente con un Treeview (una tabla).
+Después, al presionar “Agregar al Stock”, los ingredientes del CSV se agregan al objeto Stock.\\
+
+una de las buenas practicas que podemos observar es que se validan los nombres de columnas antes de procesar el archivo y se manejan errores con try/except
+
+\section{Gestion Stock}
+La pestaña stock cuenta con un formulario para ingresar ingredientes manualmente los campos a reyenar serian:\\
+Nombre\\
+Unidad(Kg o unidad)\\
+cantidad\\
+con el botón "ingresar ingredientes" se llama a la función ingresar-ingredientes() que valida los datos\\
+\textcolor{red}{Que el nombre no esta vació y contenga solo letras (validar-nombre)}\\
+\textcolor{green}{Que la cantidad sea numérica y positiva (validar-cantidad)}\\
+\textcolor{red}{luego crea el ingrediente ingresado y lo agrega al stock}\\
+\textcolor{green}{También puede eliminar ingredientes  seleccionados}\\
+\section{Creación y validación de la carta}
+En la pestaña “Carta restaurante” se genera un PDF con los menús disponibles:\\
+\begin{minted}[fontsize=\large,  bgcolor=black!5]{python}
+def generar_y_mostrar_carta_pdf(self):
+\end{minted}
+Para hacer esto se utiliza una función externa llamada create-menu-PDF() que crea el archivo carta.pdf y luego lo muestra con \textcolor{red}{CTkPDFViewer}\\
+\section{Gestión de pedidos}
+En la pestaña pedido es donde se muestra cada menú disponible, cada menú tiene una imagen, un nombre y se le puede dar click para agregar el pedido\\
+\begin{minted}[frame=lines, bgcolor=black!5]{python}
+def tarjeta_click(self, event, menu):
+\end{minted}
+Esto verifica si hay suficiente stock de ingredientes antes de permitir el pedido, si alcanza descuenta los ingredientes del stock y agrega el menú al pedido.\textcolor{red}{(self.pedido.agregar-menu(menu))}\\
+
+El pedido se muestra en una tabla y y se actualiza el total de pedido, también permite eliminar pedidos y generar el PDF de la boleta.
+
+\section{Generación de boleta}
+Para generar una boleta se utiliza la clase Boletafacade, que es la que se encarga de crear el PDF con el menú de pedidos. Luego se puede  visualiza dentro del programa usando el mismo \textcolor{red}{CTkPDFViewer}.
+
+\section{Manejo de pestañas}
+Con el método \textcolor{red}{on-tab-changese}  detecta cuándo el usuario cambia de pestaña y actualiza la información correspondiente.\\
+
+if selected_tab == "Stock":\\
+    self.actualizar_treeview()\\
+
+Esto mantiene sincronizado la interfaz con los datos del sistema.
+
+\section{Diseno y Estilo}
+para la apariencia se utiliza el siguiente codigo:\\
+ctk.set_appearance_mode("Dark")\\
+ctk.set_default_color_theme("blue")\\
+
+\section{Flujo del programa}
+Con todo lo anterior visto en el informe podemos decir que el Flujo de nuestro programa es el siguiente:\\
+\textcolor{red}{El usuario abre el programa.}\\
+\textcolor{green}{Carga ingredientes manualmente o desde CSV.}\\
+\textcolor{red}{Consulta el stock disponible.}\\
+\textcolor{green}{Ve los menús disponibles (Carta).}\\
+\textcolor{red}{Hace un pedido (se descuenta del stock).}\\
+\textcolor{green}{Genera y visualiza la boleta en PDF.}\\
+
+\section{Conclusión}
+Como se puede apreciar nuestra aplicación funciona correctamente para ayudar en la administración de un negocio, ademas que el código de la aplicación se encuentra bien estructurado y es simple y fácil de entender permitiendo que cualquier usuario pueda utilizarlo sin mucha dificultad
+
+
+
+
+
+\end{document}
